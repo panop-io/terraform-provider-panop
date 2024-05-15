@@ -10,7 +10,6 @@ import (
 	"os"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/function"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -19,7 +18,6 @@ import (
 
 // Ensure PanopProvider satisfies various provider interfaces.
 var _ provider.Provider = &PanopProvider{}
-var _ provider.ProviderWithFunctions = &PanopProvider{}
 
 // PanopProvider defines the provider implementation.
 type PanopProvider struct {
@@ -111,12 +109,6 @@ func (p *PanopProvider) Resources(ctx context.Context) []func() resource.Resourc
 func (p *PanopProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		NewPanopZoneDataSource, NewPanopAssetDataSource,
-	}
-}
-
-func (p *PanopProvider) Functions(ctx context.Context) []func() function.Function {
-	return []func() function.Function{
-		NewPanopFunction,
 	}
 }
 
