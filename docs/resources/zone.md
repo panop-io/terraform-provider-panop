@@ -26,4 +26,4 @@ ZoneResponse description
 
 ### Read-Only
 
-- `id` (Number) Zone ZoneId
+- `id` (Number) Zone Id

@@ -18,6 +18,7 @@ AssetResponse description
 ### Required
 
 - `asset_name` (String) Asset Name
+- `asset_type` (String) Asset Type
 - `zone_id` (Number) Zone Id
 
 ### Read-Only

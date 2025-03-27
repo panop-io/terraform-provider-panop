@@ -31,17 +31,19 @@ type PanopAssetDataSource struct {
 	accessKey  string
 }
 
-// AssetResourceModel describes the resource data model.
+// AssetDataSourceModel describes the resource data model.
 type AssetDataSourceModel struct {
 	AssetId   types.Int64  `tfsdk:"id"`
 	AssetName types.String `tfsdk:"asset_name"`
+	AssetType types.String `tfsdk:"asset_type"`
 	ZoneId    types.Int64  `tfsdk:"zone_id"`
 }
 
-// coffeesDataSourceModel maps the data source schema data.
+// PanopAssetDataSourceModel maps the data source schema data.
 type PanopAssetDataSourceModel struct {
-	ZoneId types.Int64            `tfsdk:"zone_id"`
-	Assets []AssetDataSourceModel `tfsdk:"assets"`
+	ZoneId   types.Int64            `tfsdk:"zone_id"`
+	ZoneType types.String           `tfsdk:"zone_type"`
+	Assets   []AssetDataSourceModel `tfsdk:"assets"`
 }
 
 func (d *PanopAssetDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -59,12 +61,21 @@ func (d *PanopAssetDataSource) Schema(ctx context.Context, req datasource.Schema
 				Optional:    true,
 			},
 
+			"zone_type": schema.StringAttribute{
+				Description: "Zone Type Filter",
+				Optional:    true,
+			},
+
 			"assets": schema.ListNestedAttribute{
 				Computed: true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"asset_name": schema.StringAttribute{
 							Description: "Asset Name",
+							Computed:    true,
+						},
+						"asset_type": schema.StringAttribute{
+							Description: "Asset Type",
 							Computed:    true,
 						},
 						"id": schema.Int64Attribute{
@@ -139,6 +150,7 @@ func (d *PanopAssetDataSource) Read(ctx context.Context, req datasource.ReadRequ
 	type AssetResponse struct {
 		AssetId   int64  `json:"id"`
 		AssetName string `json:"asset_name"`
+		AssetType string `json:"asset_type"`
 		ZoneId    int64  `json:"zone_id"`
 	}
 
@@ -160,6 +172,7 @@ func (d *PanopAssetDataSource) Read(ctx context.Context, req datasource.ReadRequ
 	for _, asset := range assets {
 		assetModel := AssetDataSourceModel{
 			AssetName: types.StringValue(asset.AssetName),
+			AssetType: types.StringValue(asset.AssetType),
 			AssetId:   types.Int64Value(asset.AssetId),
 			ZoneId:    types.Int64Value(asset.ZoneId),
 		}

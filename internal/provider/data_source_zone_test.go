@@ -20,6 +20,7 @@ func TestAccZoneDataSource(t *testing.T) {
 				Config: getProviderConfig(os.Getenv("PANOP_ACCESS_KEY")) + testAccZoneDataSourceConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.panop_zone.test", "zones.0.zone_name", "fakeducksifiedshop.com"),
+					resource.TestCheckResourceAttr("data.panop_zone.test", "zones.0.zone_type", "dns"),
 				),
 			},
 		},

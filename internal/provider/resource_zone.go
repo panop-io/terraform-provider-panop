@@ -55,7 +55,7 @@ func (r *PanopZoneResource) Schema(ctx context.Context, req resource.SchemaReque
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.Int64Attribute{
-				MarkdownDescription: "Zone ZoneId",
+				MarkdownDescription: "Zone Id",
 				Computed:            true,
 			},
 			"zone_name": schema.StringAttribute{
@@ -114,11 +114,13 @@ func (r *PanopZoneResource) Create(ctx context.Context, req resource.CreateReque
 		Path:   "/api/zones",
 	}
 	type ZoneInput struct {
-		ZoneName string `gorm:"uniqueIndex" json:"zone_name"`
+		ZoneName string `json:"zone_name"`
+		ZoneType string `json:"zone_type"`
 		TenantId int64  `gorm:"index" json:"tenant_id"`
 	}
 	zoneInput := ZoneInput{
 		ZoneName: data.ZoneName.ValueString(),
+		ZoneType: data.ZoneType.ValueString(),
 	}
 	body, _ := json.Marshal(zoneInput)
 
@@ -209,7 +211,7 @@ func (r *PanopZoneResource) Read(ctx context.Context, req resource.ReadRequest, 
 
 	respBody, err := io.ReadAll(httpResp.Body)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create zonne, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create zone, got error: %s", err))
 		return
 	}
 

@@ -19,7 +19,7 @@ func TestAccAssetDataSource(t *testing.T) {
 			{
 				Config: getProviderConfig(os.Getenv("PANOP_ACCESS_KEY")) + testAccAssetDataAssetSourceConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.panop_asset.test", "assets.0.asset_name", "www"),
+					resource.TestCheckResourceAttr("data.panop_asset.test", "assets.0.asset_name", "api"),
 				),
 			},
 		},

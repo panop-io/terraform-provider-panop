@@ -18,10 +18,11 @@ func TestAccAssetResource(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create and Read testing
 			{
-				Config: getProviderConfig(os.Getenv("PANOP_ACCESS_KEY")) + testAccAssetResourceConfig("api2", 416),
+				Config: getProviderConfig(os.Getenv("PANOP_ACCESS_KEY")) + testAccAssetResourceConfig("www", "dns", 337),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("panop_asset.test", "asset_name", "api2"),
-					resource.TestCheckResourceAttr("panop_asset.test", "zone_id", "416"),
+					resource.TestCheckResourceAttr("panop_asset.test", "asset_name", "www"),
+					resource.TestCheckResourceAttr("panop_asset.test", "asset_type", "dns"),
+					resource.TestCheckResourceAttr("panop_asset.test", "zone_id", "337"),
 				),
 			},
 			// ImportState testing
@@ -34,11 +35,12 @@ func TestAccAssetResource(t *testing.T) {
 	})
 }
 
-func testAccAssetResourceConfig(assetName string, zoneId int64) string {
+func testAccAssetResourceConfig(assetName, assetType string, zoneId int64) string {
 	return fmt.Sprintf(`
 resource "panop_asset" "test" {
   asset_name = "%s"
+  asset_type = "%s"
   zone_id = %d
 }
-`, assetName, zoneId)
+`, assetName, assetType, zoneId)
 }

@@ -38,6 +38,7 @@ func NewPanopAssetResource() resource.Resource {
 // AssetResourceModel describes the resource data model.
 type AssetResourceModel struct {
 	AssetName types.String `tfsdk:"asset_name"`
+	AssetType types.String `tfsdk:"asset_type"`
 	Id        types.Int64  `tfsdk:"id"`
 	ZoneId    types.Int64  `tfsdk:"zone_id"`
 }
@@ -54,6 +55,10 @@ func (r *PanopAssetResource) Schema(ctx context.Context, req resource.SchemaRequ
 		Attributes: map[string]schema.Attribute{
 			"asset_name": schema.StringAttribute{
 				MarkdownDescription: "Asset Name",
+				Required:            true,
+			},
+			"asset_type": schema.StringAttribute{
+				MarkdownDescription: "Asset Type",
 				Required:            true,
 			},
 			"id": schema.Int64Attribute{
@@ -107,10 +112,12 @@ func (r *PanopAssetResource) Create(ctx context.Context, req resource.CreateRequ
 	}
 	type AssetInput struct {
 		AssetName string `json:"asset_name"`
+		AssetType string `json:"asset_type"`
 		ZoneId    int64  `json:"zone_id"`
 	}
 	assetInput := AssetInput{
 		AssetName: data.AssetName.ValueString(),
+		AssetType: data.AssetType.ValueString(),
 		ZoneId:    data.ZoneId.ValueInt64(),
 	}
 	body, _ := json.Marshal(assetInput)
@@ -133,6 +140,7 @@ func (r *PanopAssetResource) Create(ctx context.Context, req resource.CreateRequ
 	type AssetResponse struct {
 		AssetId   uint   `json:"asset_id"`
 		AssetName string `json:"asset_name"`
+		AssetType string `json:"asset_type"`
 	}
 
 	respBody, err := io.ReadAll(httpResp.Body)
@@ -193,6 +201,7 @@ func (r *PanopAssetResource) Read(ctx context.Context, req resource.ReadRequest,
 	type AssetResponse struct {
 		AssetId   int64  `json:"id"`
 		AssetName string `json:"asset_name"`
+		AssetType string `json:"asset_type"`
 		ZoneId    int64  `json:"zone_id"`
 	}
 
@@ -214,6 +223,7 @@ func (r *PanopAssetResource) Read(ctx context.Context, req resource.ReadRequest,
 	for _, asset := range assets {
 		if asset.AssetId == data.Id.ValueInt64() {
 			data.AssetName = types.StringValue(asset.AssetName)
+			data.AssetType = types.StringValue(asset.AssetType)
 			data.ZoneId = types.Int64Value(asset.ZoneId)
 			break
 		}
@@ -223,25 +233,7 @@ func (r *PanopAssetResource) Read(ctx context.Context, req resource.ReadRequest,
 }
 
 func (r *PanopAssetResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data ZoneResourceModel
-
-	// Read Terraform plan data into the model
-	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
-
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// If applicable, this is a great opportunity to initialize any necessary
-	// provider client data and make a call using it.
-	// httpResp, err := r.client.Do(httpReq)
-	// if err != nil {
-	//     resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update example, got error: %s", err))
-	//     return
-	// }
-
-	// Save updated data into Terraform state
-	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	resp.Diagnostics.AddError("Not implemented", "Unable to update asset")
 }
 
 func (r *PanopAssetResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -272,8 +264,7 @@ func (r *PanopAssetResource) Delete(ctx context.Context, req resource.DeleteRequ
 	}
 
 	if httpResp.StatusCode != http.StatusOK {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to send deletion: %t", err))
-		return
+		resp.Diagnostics.AddWarning("Client Error", fmt.Sprintf("Unable to send deletion: %d", httpResp.StatusCode))
 	}
 	// this is the end of tower call
 

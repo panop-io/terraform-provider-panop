@@ -18,6 +18,7 @@ data source
 ### Optional
 
 - `zone_id` (Number) Zone Id Filter
+- `zone_type` (String) Zone Type Filter
 
 ### Read-Only
 
@@ -29,5 +30,6 @@ data source
 Read-Only:
 
 - `asset_name` (String) Asset Name
+- `asset_type` (String) Asset Type
 - `id` (Number) Asset Id
 - `zone_id` (Number) Zone Id
