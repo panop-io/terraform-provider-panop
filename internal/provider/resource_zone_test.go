@@ -9,39 +9,61 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
+	"github.com/hashicorp/terraform-plugin-testing/statecheck"
+	"github.com/hashicorp/terraform-plugin-testing/tfjsonpath"
 )
 
 func TestAccZoneResource(t *testing.T) {
+	zoneName := "nonexist.panop.io"
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			// Create and Read testing
 			{
-				Config: getProviderConfig(os.Getenv("PANOP_ACCESS_KEY")) + testAccExampleZoneResourceConfig("nonexist.panop.io"),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("panop_zone.test", "zone_name", "nonexist.panop.io"),
-				),
+				Config: getProviderConfig(os.Getenv("PANOP_ACCESS_KEY")) + testAccZoneResourceConfig(zoneName),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue(
+						"panop_zone.test",
+						tfjsonpath.New("zone_name"),
+						knownvalue.StringExact(zoneName),
+					),
+					statecheck.ExpectKnownValue(
+						"panop_zone.test",
+						tfjsonpath.New("zone_type"),
+						knownvalue.StringExact("dns"),
+					),
+					statecheck.ExpectKnownValue(
+						"panop_zone.test",
+						tfjsonpath.New("id"),
+						knownvalue.NotNull(),
+					),
+					statecheck.ExpectKnownValue(
+						"panop_zone.test",
+						tfjsonpath.New("token"),
+						knownvalue.NotNull(),
+					),
+				},
 			},
 			// ImportState testing
 			{
 				ResourceName:      "panop_zone.test",
 				ImportState:       true,
 				ImportStateVerify: true,
-				// This is not normally necessary, but is here because this
-				// example code does not have an actual upstream service.
-				// Once the Read method is able to refresh information from
-				// the upstream service, this can be removed.
+				// token comes from the create response. Import runs Read against
+				// the zone list, which is not guaranteed to return the same value.
 				ImportStateVerifyIgnore: []string{"token"},
 			},
 		},
 	})
 }
 
-func testAccExampleZoneResourceConfig(configurableAttribute string) string {
+func testAccZoneResourceConfig(zoneName string) string {
 	return fmt.Sprintf(`
 resource "panop_zone" "test" {
-  zone_name = "%s"
+  zone_name = %[1]q
 }
-`, configurableAttribute)
+`, zoneName)
 }
